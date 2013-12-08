@@ -1,0 +1,237 @@
+<?php
+  require_once('connectvar.php');
+
+  // Start the session
+  session_start();
+
+  // Clear the error message
+  $error_msg = "";
+
+  // If the user isn't logged in, try to log them in
+  if (!isset($_SESSION['user_id'])) {
+    if (isset($_POST['submit'])) {
+      // Connect to the database
+      $dbc = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
+
+      // Grab the user-entered log-in data
+      $user_username = mysqli_real_escape_string($dbc, trim($_POST['username']));
+      $user_password = mysqli_real_escape_string($dbc, trim($_POST['password']));
+
+      if (!empty($user_username) && !empty($user_password)) {
+        // Look up the username and password in the database
+        $query = "SELECT user_id, username FROM chat_user WHERE username = '$user_username' AND password = '$user_password'";
+        $data = mysqli_query($dbc, $query);
+
+        if (mysqli_num_rows($data) == 1) {
+          // The log-in is OK so set the user ID and username session vars (and cookies), and redirect to the home page
+          $row = mysqli_fetch_array($data);
+          $_SESSION['user_id'] = $row['user_id'];
+          $_SESSION['username'] = $row['username'];
+          setcookie('user_id', $row['user_id'], time() + (60 * 60 * 24 * 30));    // expires in 30 days
+          setcookie('username', $row['username'], time() + (60 * 60 * 24 * 30));  // expires in 30 days
+          $home_url = 'http://' . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . '/index.php';
+          header('Location: ' . $home_url);
+        }
+        else {
+          // The username/password are incorrect so set an error message
+          $error_msg = 'Sorry, you must enter a valid username and password to log in.';
+        }
+      }
+      else {
+        // The username/password weren't entered so set an error message
+        $error_msg = 'Sorry, you must enter your username and password to log in.';
+      }
+    }
+  }
+?>
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>Chating Is For Loser's </title>
+   <script type="text/javascript" src="../js/jquery.min.js"></script>
+
+<script src="ajax.js" language="javascript"></script>
+        <script>
+            function clear() {
+                document.getElementById("text").value = '';
+            }
+            
+            function m()
+            {
+                setInterval("loadXMLDoc()", 2000);
+            };
+            
+            function loadXMLDoc()
+            
+            {
+            var xmlhttp;
+            if (window.XMLHttpRequest)
+            {// code for IE7+, Firefox, Chrome, Opera, Safari
+            xmlhttp=new XMLHttpRequest();
+            }
+            else
+            {// code for IE6, IE5
+            xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+            }
+            xmlhttp.onreadystatechange=function()
+            {
+            if (xmlhttp.readyState==4 && xmlhttp.status==200)
+              {
+              document.getElementById("mydiv").innerHTML=xmlhttp.responseText;
+              }
+            }
+            xmlhttp.open("post","http://g.rambam770.com/chat/chats.php",true);
+            xmlhttp.send();
+            }   
+    </script>
+    <script>
+     /*        $(function() {
+    $("#enter").on("click", function() {
+       $('#text').each(function(){
+    this.reset();
+});
+});
+             });*/
+
+    </script>
+    
+    <style>
+        body{
+            background: skyblue;
+        }
+        #mydiv {
+            margin:0 auto;
+            padding-right: 25px;
+            width: 500px;
+            height:500px;
+            overflow: scroll;
+            overflow-x: hidden;
+        }
+        #add {
+            margin:0 auto;
+            margin-top:50px;
+            width: 500px;
+        }
+        #text {
+            
+        }
+    </style>
+</head>
+<body onload="m()" >
+    <?php
+  // If the session var is empty, show any error message and the log-in form; otherwise confirm the log-in
+  if (empty($_SESSION['user_id'])) {
+    echo '<p class="error">' . $error_msg . '</p>';
+?>
+
+  <form id="form4" method="post" action="<?php echo $_SERVER['PHP_SELF']; ?>">
+  <h3>G&AMPG - Log In</h3>
+    <fieldset>
+      <legend>Log In</legend>
+      <label for="username">Username:</label>
+      <input type="text" name="username" value="<?php if (!empty($user_username)) echo $user_username; ?>" /><br />
+      <label for="password">Password:</label>
+      <input type="password" name="password" />
+    </fieldset>
+    <button type="submit" value="Log In" name="submit">Log In</button>
+  </form>
+
+<?php
+  }
+  else {
+    // Confirm the successful log-in
+    echo('<p class="login">You are logged in as ' . $_SESSION['username'] . '.</p>');
+  }
+?>
+    
+    <div id="add">
+        <form name="form" action="javascript:insert()" method="post" >
+           <!-- <input type="text" id="text" name="text"/>-->
+            <textarea name="text" id="text" style="width:250px;"></textarea>
+            <input id="chat"  name="chat" type="text" value="2"/>
+            <input id="enter" type="submit" value="Enter" name="submit" onclick="clear()"/>
+            
+        </form>    
+    </div>
+    
+
+    <div id="mydiv"></div>
+<div id="insert_response"></div>
+</body>
+</html>
+
+/*Compressed by JSC Version 1.0.25633
+GodLikeMouse http://www.godlikemouse.com*/
+
+var GLM={DOM:Object,AJAX:Object,Collection:Object};GLM.DOM.isInternetExplorer=(navigator.userAgent.indexOf("MSIE")>=0);GLM.DOM.isMozilla=(navigator.userAgent.indexOf("Gecko")>=0);GLM.DOM.isOpera=(navigator.userAgent.indexOf("Opera")>=0);GLM.DOM.isSafari=(navigator.userAgent.indexOf("Safari")>=0);GLM.Collection.Map=function(){var len=0;var keys=new Array();var values=new Array();this.get=function(key){var val=null;for(var i=0;i<len;i++){if(keys[i]==key){val=values[i];break;}}return val;};this.put=function(key,value){for(var i=0;i<len;i++){if(keys[i]==key){values[i]=value;return;}}keys[len]=key;values[len++]=value;};this.length=function(){return len;};this.contains=function(key){var con=false;for(var i=0;i<len;i++){if(keys[i]==key){con=true;break;}}return con;};this.remove=function(key){var keyArr=new Array();var valArr=new Array();var l=0;for(var i=0;i<len;i++){if(keys[i]!=key){keyArr[l]=keys[i];valArr[l++]=values[i];}}keys=keyArr;values=valArr;len=l;};};;GLM.AJAX=function(){var nameSpace="http://tempuri.org/";var map=new GLM.Collection.Map();var ajaxObject=function(){try{return new XMLHttpRequest();}catch(ex){};try{return new ActiveXObject("Microsoft.XMLHTTP");}catch(ex){};try{return new SOAPCall();}catch(ex){};};;;this.onError=function(error){alert(error);};;this.callPage=function(url,callbackFunction,method,args,async){try{var ao=ajaxObject();ao.onreadystatechange=function(){if(ao.readyState==4||ao.readyState=="complete"){callbackFunction(ao.responseText);}};if(!method)method="GET";if(!args)args=null;if(async==null)async=true;ao.open(method,url,async);if(method=="POST")ao.setRequestHeader("Content-Type","application/x-www-form-urlencoded");ao.send(args);}catch(ex){this.onError(ex);}};;this.callService=function(serviceUrl,soapMethod,callbackFunction){var callServiceError=this.onError;var ao=ajaxObject();if(!ao.encode){if(serviceUrl.indexOf("http://")<0)serviceUrl="http://"+serviceUrl;serviceUrl+="?WSDL";var soapEnvelope="<?xml version=\"1.0\" encoding=\"utf-8\"?>";soapEnvelope+="<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">";soapEnvelope+="<soap:Body>";soapEnvelope+="<"+soapMethod+" xmlns=\""+nameSpace+"\">";if(arguments.length>3){for(var i=3;i<arguments.length;i++){var params=arguments[i].split("=");soapEnvelope+="<"+params[0]+">";soapEnvelope+=params[1];soapEnvelope+="</"+params[0]+">";}}soapEnvelope+="</"+soapMethod+">";soapEnvelope+="</soap:Body>";soapEnvelope+="</soap:Envelope>";ao.onreadystatechange=function(){if(ao.readyState==4){try{var response=ao.responseXML.getElementsByTagName(soapMethod+"Result")[0];if(!response)response=ao.responseXML.getElementsByTagName(soapMethod+"Response")[0];if(!response){callServiceError("WebService does not contain a Result/Response node");return;}if(response.textContent)callbackFunction(response.textContent);else if(response.text)callbackFunction(response.text);}catch(ex){callServiceError(ex);}}};ao.open("POST",serviceUrl,true);ao.setRequestHeader("Content-Type","text/xml");ao.setRequestHeader("SOAPAction",nameSpace+soapMethod);try{ao.send(soapEnvelope);}catch(ex){serviceCallError(ex);}}else{var soapParams=new Array();var headers=new Array();var soapVersion=0;var object=nameSpace;if(serviceUrl.indexOf("http://")<0)serviceUrl=document.location+serviceUrl;ao.transportURI=serviceUrl;ao.actionURI=nameSpace+soapMethod;for(var i=3;i<arguments.length;i++){var params=arguments[i].split("=");soapParams.push(new SOAPParameter(params[1],params[0]));}try{ao.encode(soapVersion,soapMethod,object,headers.length,headers,soapParams.length,soapParams);}catch(ex){serviceCallError(ex);}try{netscape.security.PrivilegeManager.enablePrivilege("UniversalBrowserRead");}catch(ex){return false;}try{ao.asyncInvoke(function(resp,call,status){if(resp.fault)return callServiceError(resp.fault);if(!resp.body){callServiceError("Service "+call.transportURI+" not found.");}else{try{callbackFunction(resp.body.firstChild.firstChild.firstChild.data);}catch(ex){callServiceError(ex);}}});}catch(ex){serviceCallError(ex);}}};;this.setNameSpace=function(ns){nameSpace=ns;};;this.getNameSpace=function(){return nameSpace;};};
+
+/* ---------------------------- */
+/* XMLHTTPRequest Enable */
+/* ---------------------------- */
+function createObject() {
+var request_type;
+var browser = navigator.appName;
+if(browser == "Microsoft Internet Explorer"){
+request_type = new ActiveXObject("Microsoft.XMLHTTP");
+}else{
+request_type = new XMLHttpRequest();
+}
+return request_type;
+}
+
+var http = createObject();
+
+/* -------------------------- */
+/* INSERT */
+/* -------------------------- */
+/* Required: var nocache is a random number to add to request. This value solve an Internet Explorer cache issue */
+var nocache = 0;
+function insert() {
+// Optional: Show a waiting message in the layer with ID login_response
+document.getElementById('insert_response').innerHTML = "Just a second..."
+// Required: verify that all fileds is not empty. Use encodeURI() to solve some issues about character encoding.
+var text= encodeURI(document.getElementById('text').value);
+//var chat= encodeURI(document.getElementById('chat').value);
+//var text = text1;
+//var chat= chat1;
+//var site_name = encodeURI(document.getElementById('site_name').value);
+// Set te random number to add to URL request
+nocache = Math.random();
+// Pass the login variables like URL variable
+http.open('get', 'insert.php?text='+text+'&nocache = '+nocache);
+http.onreadystatechange = insertReply;
+http.send(null);
+}
+function insertReply() {//
+if(http.readyState == 4){ 
+var response = http.responseText;
+// else if login is ok show a message: "Site added+ site URL".
+document.getElementById('insert_response').innerHTML = ''+response;
+
+}
+}
+
+
+
+<?php
+    
+    
+        require_once('connectvar.php');
+ $abc = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
+if(isset($_GET['text']) || isset($_GET['chat'])){
+
+$text= $_GET['text'];
+$chat= '2';
+
+$insertSite_sql = "INSERT INTO chating (id,chat_user,chats) VALUES(null, '$chat','$text')";
+        mysqli_query($abc, $insertSite_sql)  or die(mysql_error());
+        mysqli_close($abc);
+        exit();
+
+
+} else { 
+echo 'Error! Please fill all fileds!';
+}
+
+?>

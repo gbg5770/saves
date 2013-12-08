@@ -1,0 +1,85 @@
+    <?php
+    
+    
+        require_once('connectvar.php');
+        
+        $abc = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
+        
+         if (isset($_POST['submit'])) {
+            
+    $words = ($_POST['text']);
+
+    if (!empty($words)) {
+     
+        // The website is unique, so insert the data into the database
+        $query = "INSERT INTO chating (chats) VALUES ('$words')";
+        mysqli_query($abc, $query);
+
+        // Confirm success with the user
+        echo '<p>Your new website has been successfully added.</p>';
+
+        mysqli_close($abc);
+        exit();
+
+    }
+    else {
+      echo '<p class="error">You must enter data.</p>';
+    }
+  }
+
+  mysqli_close($abc);
+?>
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>Chating Is For Loser's </title>
+   <script type="text/javascript" src="../js/jquery.min.js"></script>
+  <style>
+
+  </style>
+<script src="ajax.js" language="javascript"></script>
+        <script>
+            
+            function m()
+            {
+                setInterval("loadXMLDoc()", 2000);
+            };
+            
+function loadXMLDoc()
+
+{
+var xmlhttp;
+if (window.XMLHttpRequest)
+  {// code for IE7+, Firefox, Chrome, Opera, Safari
+  xmlhttp=new XMLHttpRequest();
+  }
+else
+  {// code for IE6, IE5
+  xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+  }
+xmlhttp.onreadystatechange=function()
+  {
+  if (xmlhttp.readyState==4 && xmlhttp.status==200)
+    {
+    document.getElementById("myDiv").innerHTML=xmlhttp.responseText;
+    }
+  }
+xmlhttp.open("post","http://g.rambam770.com/chat/chats.php",true);
+xmlhttp.send();
+}
+    </script>
+</head>
+<body onload="m()" >
+    <div id="add">
+        <form method="post" action=" <?php echo $_SERVER['PHP_SELF']; ?> ">
+            <input type="text" id="text" name="text" />
+            
+            <input type="submit" value="Enter" name="submit" />
+        </form>    
+    </div>
+
+    <div id="myDiv"></div>
+
+</body>
+</html>

@@ -1,0 +1,66 @@
+/*  
+$curl = curl_init('http://rambam770.com/r/');
+curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
+ 
+$page = curl_exec($curl);
+ 
+if(curl_errno($curl))
+{
+    echo 'Scraper error: ' . curl_error($curl);
+    exit;
+}
+ 
+curl_close($curl);
+ 
+    echo $page;
+*/
+
+
+<?php
+// Get cURL resource
+$curl = curl_init();
+// Set some options - we are passing in a useragent too here
+curl_setopt_array($curl, array(
+    CURLOPT_RETURNTRANSFER => 0,
+    CURLOPT_URL => 'http://maytelesdesign.webuda.com/blog/addblog.html',
+    CURLOPT_POST => 1,
+    CURLOPT_POSTFIELDS => array(
+        date => 'value',
+		body => 'value',
+		image => 'value'
+		
+    )
+));
+// Send the request & save response to $resp
+$resp = curl_exec($curl);
+
+
+if(!curl_exec($curl)){
+    die('Error: "' . curl_error($curl) . '" - Code: ' . curl_errno($curl));
+}
+// Close request to clear up some resources
+curl_close($curl);
+?>
+
+
+  <form method="post" action=" <?php echo $_SERVER['PHP_SELF']; ?> ">
+            <input type="text" id="site_name" name="site_name" />
+            
+            <input type="submit" value="add site" name="submit" />
+        </form>   
+   
+<?php
+$site_name = '';
+ if (isset($_POST['submit'])) {
+    // Grab the site data from the POST
+    $site_name = ($_POST['site_name']);
+$ch = curl_init("http://crownheights.info/search/+");
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_POST, true);
+curl_setopt($ch, CURLOPT_POSTFIELDS, array("s" => $site_name));
+$output = curl_exec($ch);
+echo $output;
+curl_close($ch);
+ }
+?>
+
